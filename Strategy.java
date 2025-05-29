@@ -7,7 +7,6 @@ public class Strategy {
     private int range;
 
     public Strategy() {
-        
     }
 
     public void initialize(String name, int speed, int strength, int range) {
@@ -17,7 +16,7 @@ public class Strategy {
         this.range = range;
     }
 
-    public void playerSetup(Scanner scan) {
+    public void playerSetup(Scanner scan, String name) {
     }
 
     public String getName() {
