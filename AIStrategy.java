@@ -16,10 +16,4 @@ public class AIStrategy extends Strategy {
     public String getName() {
         return tempName;
     }
-
-    @Override
-    public void storeInfo() {
-
-    }
-
 }

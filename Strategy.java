@@ -1,7 +1,9 @@
-import java.io.Serializable;
+import java.io.*;
 import java.util.Scanner;
 
 public class Strategy implements Serializable {
+    private static final int TOTAL_POINTS = 40;
+
     private String name;
     private int speed;
     private int strength;
@@ -37,9 +39,5 @@ public class Strategy implements Serializable {
 
     public int getRange() {
         return range;
-    }
-
-    // For AI: stores leaderboard data. For player: serializes data as an AI
-    public void storeInfo() {
     }
 }

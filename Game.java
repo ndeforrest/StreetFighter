@@ -3,17 +3,18 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
-    static ArrayList<Strategy> strategies;
-    Strategy player1, player2;
-    int player1Damage = 2;
-    int player1Health = 10;
-    int player1Range = 2;
-    int player2Damage = 2;
-    int player2Health = 10;
-    int player2Range = 2;
+    public static ArrayList<Strategy> strategies;
+    private Strategy player1, player2;
 
-    int range = 5;
-    boolean turn;
+    private int player1Damage = 2;
+    private int player1Health = 10;
+    private int player1Range = 2;
+    private int player2Damage = 2;
+    private int player2Health = 10;
+    private int player2Range = 2;
+
+    private int range = 5;
+    private boolean turn;
 
     /*
      * speed: every few turns, get another kick
@@ -30,16 +31,16 @@ public class Game {
                 try {
                     Strategy s = (Strategy) in.readObject();
                     strategies.add(s);
-                } catch (EOFException eof) {
-                    break;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         } catch (Exception e) {
         }
     }
 
-    public Strategy pickStrategy(Scanner scan) {
-        System.out.println("Pick one of these charachters: ");
+    public static Strategy pickStrategy(Scanner scan) {
+        System.out.println("Pick one of these characters: ");
         for (int i = 0; i < strategies.size(); i++) {
             Strategy s = strategies.get(i);
             System.out.println(i + ": " + s.getName() + " (Speed: " + s.getSpeed() + ", Strength: " + s.getStrength()
@@ -47,6 +48,50 @@ public class Game {
         }
         System.out.print("Pick a strategy number: ");
         return strategies.get(Integer.parseInt(scan.nextLine()));
+    }
+
+    public static void updateStrategyList(Scanner scan, Strategy player1, Strategy player2) {
+        boolean addPlayer1 = player1 instanceof PlayerStrategy;
+        boolean addPlayer2 = player2 instanceof PlayerStrategy;
+
+        for (int i = 0; i < strategies.size(); i++) {
+            if (strategies.get(i).getName().equals(player1.getName())) {
+                if (player1 instanceof PlayerStrategy) {
+                    addPlayer1 = false;
+                } else if (player1 instanceof AIStrategy) {
+                    strategies.set(i, player1);
+                }
+            } else if (strategies.get(i).getName().equals(player2.getName())) {
+                if (player2 instanceof PlayerStrategy) {
+                    addPlayer2 = false;
+                } else if (player2 instanceof AIStrategy) {
+                    strategies.set(i, player2);
+                }
+            }
+        }
+        if (addPlayer1) {
+            System.out.print("Do you want to upload your data as an AI?: ");
+            if (scan.nextLine().equalsIgnoreCase("yes")) {
+                strategies.add(player1);
+            }
+        }
+        if (addPlayer2) {
+            System.out.print("Do you want to upload your data as an AI?: ");
+            if (scan.nextLine().equalsIgnoreCase("yes")) {
+                strategies.add(player2);
+            }
+        }
+    }
+
+    public static void uploadStrategies() {
+        try (FileOutputStream fileOut = new FileOutputStream("Strategies.txt");
+                ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            for (Strategy s : strategies) {
+                out.writeObject(s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setup(Scanner scan) {
@@ -83,23 +128,25 @@ public class Game {
             player2.playerSetup(scan, scan.nextLine());
         }
 
-        if (player1.getSpeed() > player2.getSpeed()) {
-
-        } else if (player2.getSpeed() > player1.getSpeed()) {
-
-        }
-        if (player1.getRange() > player2.getRange()) {
-            player1Range++;
-        }
-        if (player1.getRange() > player2.getRange() + 4) {
-            player1Range++;
-        }
-        if (player2.getRange() > player1.getRange()) {
-            player2Range++;
-        }
-        if (player2.getRange() > player1.getRange() + 4) {
-            player2Range++;
-        }
+        /*
+         * if (player1.getSpeed() > player2.getSpeed()) {
+         * 
+         * } else if (player2.getSpeed() > player1.getSpeed()) {
+         * 
+         * }
+         * if (player1.getRange() > player2.getRange()) {
+         * player1Range++;
+         * }
+         * if (player1.getRange() > player2.getRange() + 4) {
+         * player1Range++;
+         * }
+         * if (player2.getRange() > player1.getRange()) {
+         * player2Range++;
+         * }
+         * if (player2.getRange() > player1.getRange() + 4) {
+         * player2Range++;
+         * }
+         */
 
     }
 
@@ -108,7 +155,8 @@ public class Game {
         while (player1Health > 0 && player2Health > 0) {
 
         }
-        end(scan);
+        updateStrategyList(scan, player1, player2);
+        uploadStrategies();
     }
 
     public void printStats() {
@@ -134,16 +182,4 @@ public class Game {
         return player2;
     }
 
-    public void end(Scanner scan) {
-        System.out.println(player1.getName() + ", do you want to save your data as an AI player? (yes/no)");
-        if (scan.nextLine().equalsIgnoreCase("yes")) {
-            player1.storeInfo();
-        }
-
-        System.out.println(player2.getName()
-                + ", do you want to save your data as an AI player? (yes/no) (Select yes if AI player)");
-        if (scan.nextLine().equalsIgnoreCase("yes")) {
-            player2.storeInfo();
-        }
-    }
 }
